@@ -1,0 +1,16 @@
+body[dir="rtl"] .ant-menu {
+    text-align: right;
+  }
+  
+  body[dir="rtl"] .ant-layout-header {
+    padding: 0 0 0 50px;
+  }
+  
+  body[dir="rtl"] .ant-layout-content {
+    padding: 0 50px 0 0;
+  }
+  
+  body[dir="rtl"] .ant-btn + .ant-btn {
+    margin-right: 8px;
+    margin-left: 0;
+  }
