@@ -64,7 +64,27 @@
     "pleaseInputUsername": "אנא הכנס שם משתמש!",
     "pleaseInputPassword": "אנא הכנס סיסמה!",
     "loginFailed": "ההתחברות נכשלה. אנא נסה שוב.",
-    "logout": "התנתקות"
+    "logout": "התנתקות",
+    "doctorHaveSched": "לא ניתן למחוק לרופא זה יש זימון פעיל מחק אותו ולאחר מכן תנסה שנית",
+    "failedToAddDoctor": "נכשל להוסיף רופא",
+    "failedToAddDoctorTryAgain": "נכשל להוסיף רופא. אנא נסה שוב.",
+    "failedToUpdateDoctor": "נכשל לעדכן את הרופא",
+    "failedToUpdateDoctorTryAgain": "נכשל לעדכן את הרופא. אנא נסה שוב.",
+    "failedToDeleteDoctor": "נכשל למחוק את הרופא",
+    "failedToDeleteDoctorTryAgain": "נכשל למחוק את הרופא. אנא נסה שוב.",
+    "doctorHasSchedulesWarning": "לרופא זה יש לוח זמנים מוקצה ולא ניתן למחוק אותו.",
+    "scheduleAddedSuccess": "לוח הזמנים נוסף בהצלחה",
+    "failedToAddSchedule": "נכשל להוסיף לוח זמנים",
+    "failedToAddScheduleTryAgain": "נכשל להוסיף לוח זמנים. אנא נסה שוב.",
+    "scheduleRemovedSuccess": "לוח הזמנים הוסר בהצלחה",
+    "failedToRemoveSchedule": "נכשל להסיר את לוח הזמנים",
+    "failedToRemoveScheduleTryAgain": "נכשל להסיר את לוח הזמנים. אנא נסה שוב.",
+    "scheduleUpdatedSuccess": "לוח הזמנים עודכן בהצלחה",
+    "failedToUpdateSchedule": "נכשל לעדכן את לוח הזמנים",
+    "failedToUpdateScheduleTryAgain": "נכשל לעדכן את לוח הזמנים. אנא נסה שוב.",
+    "languageChanged": "השפה השתנתה ל{{lng}}",
+    "languageChangedEnglish": "השפה השתנתה לאנגלית",
+    "languageChangedHebrew": "השפה השתנתה לעברית"
 
 
   }

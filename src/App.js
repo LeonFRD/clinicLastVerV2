@@ -11,8 +11,11 @@ import PatientView from './components/PatientView';
 import RoomView from './components/RoomView';
 import RoomPreviewModal from './components/RoomPreviewModal';
 import LoginPage from './components/LoginPage';
+import logo from './assets/logo.webp';
 import io from 'socket.io-client';
 import 'antd/dist/reset.css';
+import './App.css';
+
 
 import heIL from 'antd/lib/locale/he_IL';
 import enUS from 'antd/lib/locale/en_US';
@@ -65,13 +68,13 @@ function AppContent() {
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch doctors');
+        throw new Error(t('failedToFetchDoctors'));
       }
       const data = await response.json();
       setDoctors(data);
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      message.error('Failed to load doctors. Please try again later.');
+      message.error(t('failedToLoadDoctors'));
     }
   };
 
@@ -84,13 +87,13 @@ function AppContent() {
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch schedules');
+        throw new Error(t('failedToFetchSchedules'));
       }
       const data = await response.json();
       setSchedules(data);
     } catch (error) {
       console.error('Error fetching schedules:', error);
-      message.error('Failed to load schedules. Please try again later.');
+      message.error(t('failedToLoadSchedules'));
     }
   };
 
@@ -105,15 +108,15 @@ function AppContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add doctor');
+        throw new Error(t('failedToAddDoctor'));
       }
 
       const addedDoctor = await response.json();
       setDoctors(prevDoctors => [...prevDoctors, addedDoctor]);
-      message.success('Doctor added successfully');
+      message.success(t('doctorAddedSuccess'));
     } catch (error) {
       console.error('Error adding doctor:', error);
-      message.error('Failed to add doctor. Please try again.');
+      message.error(t('failedToAddDoctorTryAgain'));
     }
   };
 
@@ -128,15 +131,15 @@ function AppContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update doctor');
+        throw new Error(t('failedToUpdateDoctor'));
       }
 
       const updatedDoctorData = await response.json();
       setDoctors(prevDoctors => prevDoctors.map(doc => doc.id === updatedDoctorData.id ? updatedDoctorData : doc));
-      message.success('Doctor updated successfully');
+      message.success(t('doctorUpdatedSuccess'));
     } catch (error) {
       console.error('Error updating doctor:', error);
-      message.error('Failed to update doctor. Please try again.');
+      message.error(t('failedToUpdateDoctorTryAgain'));
     }
   };
 
@@ -145,16 +148,22 @@ function AppContent() {
       const response = await fetch(`/api/doctors/${doctorId}`, {
         method: 'DELETE',
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to delete doctor');
+        const errorData = await response.json();
+        if (errorData.error === 'This doctor has schedules assigned and cannot be deleted.') {
+          message.warning(t('doctorHasSchedulesWarning'));
+        } else {
+          throw new Error(errorData.error || t('failedToDeleteDoctor'));
+        }
+        return;
       }
-
+  
       setDoctors(prevDoctors => prevDoctors.filter(doc => doc.id !== doctorId));
-      message.success('Doctor deleted successfully');
+      message.success(t('doctorDeletedSuccess'));
     } catch (error) {
       console.error('Error deleting doctor:', error);
-      message.error('Failed to delete doctor. Please try again.');
+      message.error(t('failedToDeleteDoctorTryAgain'));
     }
   };
 
@@ -170,16 +179,16 @@ function AppContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add schedule');
+        throw new Error(errorData.error || t('failedToAddSchedule'));
       }
 
       const addedSchedule = await response.json();
       setSchedules(prevSchedules => [...prevSchedules, addedSchedule]);
       setIsScheduleModalVisible(false);
-      message.success('Schedule added successfully');
+      message.success(t('scheduleAddedSuccess'));
     } catch (error) {
       console.error('Error adding schedule:', error);
-      message.error(error.message || 'Failed to add schedule. Please try again.');
+      message.error(error.message || t('failedToAddScheduleTryAgain'));
     }
   };
 
@@ -190,14 +199,14 @@ function AppContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to remove schedule');
+        throw new Error(t('failedToRemoveSchedule'));
       }
 
       setSchedules(prevSchedules => prevSchedules.filter(schedule => schedule.id !== scheduleId));
-      message.success('Schedule removed successfully');
+      message.success(t('scheduleRemovedSuccess'));
     } catch (error) {
       console.error('Error removing schedule:', error);
-      message.error('Failed to remove schedule. Please try again.');
+      message.error(t('failedToRemoveScheduleTryAgain'));
     }
   };
 
@@ -212,7 +221,7 @@ function AppContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update schedule');
+        throw new Error(t('failedToUpdateSchedule'));
       }
 
       const updatedScheduleData = await response.json();
@@ -221,10 +230,10 @@ function AppContent() {
           schedule.id === updatedScheduleData.id ? updatedScheduleData : schedule
         )
       );
-      message.success('Schedule updated successfully');
+      message.success(t('scheduleUpdatedSuccess'));
     } catch (error) {
       console.error('Error updating schedule:', error);
-      message.error('Failed to update schedule. Please try again.');
+      message.error(t('failedToUpdateScheduleTryAgain'));
     }
   };
 
@@ -234,19 +243,14 @@ function AppContent() {
   };
 
   const getCurrentDayName = () => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [t('sunday'), t('monday'), t('tuesday'), t('wednesday'), t('thursday'), t('friday'), t('saturday')];
     return days[new Date().getDay()];
   };
 
-  // const changeLanguage = (lng) => {
-  //   i18n.changeLanguage(lng);
-  //   setRtl(lng === 'he');
-  //   message.success(`Language changed to ${lng === 'en' ? 'English' : 'עברית'}`);
-  // };
-
   const handleLanguageChange = (lng) => {
     changeLanguage(lng);
-    message.success(`Language changed to ${lng === 'en' ? 'English' : 'עברית'}`);
+    const messageKey = lng === 'en' ? 'languageChangedEnglish' : 'languageChangedHebrew';
+    message.success(t(messageKey));
   };
 
   const handleLogin = (username, password) => {
@@ -268,34 +272,43 @@ function AppContent() {
   };
 
   const HeaderContent = () => (
-    <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']} style={{ flex: 1 }}>
-        <Menu.Item key="1"><Link to="/">{t('management')}</Link></Menu.Item>
-        <Menu.Item key="2"><Link to="/patient">{t('patientView')}</Link></Menu.Item>
-        <Menu.SubMenu key="3" title={t('rooms')}>
-          {[...Array(17)].map((_, i) => (
-            <Menu.Item key={`room-${i + 1}`} onClick={() => handleRoomClick(i + 1)}>
-              {t('room')} {i + 1}
-            </Menu.Item>
-          ))}
-        </Menu.SubMenu>
-      </Menu>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Button type="primary" onClick={() => setIsScheduleModalVisible(true)} style={{ marginRight: '10px' }}>
-          {t('addSchedule')}
-        </Button>
-        <Button type="primary" onClick={() => setIsDoctorsModalVisible(true)} style={{ marginRight: '10px' }}>
-          {t('manageDoctors')}
-        </Button>
-        <Select 
-          value={language} 
-          style={{ width: 120, marginRight: '10px' }} 
-          onChange={handleLanguageChange}
+    <Header style={{ padding: '0 20px', height: 'auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <img src={logo} alt="Clinic Logo" style={{ height: '60px', marginRight: '20px' }} />
+        </div>
+        <Menu 
+          theme="dark" 
+          mode="horizontal" 
+          defaultSelectedKeys={['1']} 
+          style={{ flex: 1, minWidth: '300px' }}
         >
-          <Option value="en">English</Option>
-          <Option value="he">עברית</Option>
-        </Select>
-        <Button onClick={handleLogout}>{t('logout')}</Button>
+          <Menu.Item key="1"><Link to="/">{t('management')}</Link></Menu.Item>
+          <Menu.Item key="2"><Link to="/patient">{t('patientView')}</Link></Menu.Item>
+          <Menu.SubMenu key="3" title={t('rooms')}>
+            {[...Array(17)].map((_, i) => (
+              <Menu.Item key={`room-${i + 1}`} onClick={() => handleRoomClick(i + 1)}>
+                {t('room')} {i + 1}
+              </Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        </Menu>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Button type="primary" onClick={() => setIsScheduleModalVisible(true)} style={{ marginRight: '10px' }}>
+            {t('addSchedule')}
+          </Button>
+          <Button type="primary" onClick={() => setIsDoctorsModalVisible(true)} style={{ marginRight: '10px' }}>
+            {t('manageDoctors')}
+          </Button>
+          <Select 
+            value={language} 
+            style={{ width: 120 }} 
+            onChange={handleLanguageChange}
+          >
+            <Option value="en">English</Option>
+            <Option value="he">עברית</Option>
+          </Select>
+        </div>
       </div>
     </Header>
   );

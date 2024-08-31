@@ -190,10 +190,21 @@ app.put('/api/doctors/:id', async (req, res) => {
 app.delete('/api/doctors/:id', async (req, res) => {
   try {
     const doctors = await readJsonFile(DOCTORS_FILE);
-    const updatedDoctors = doctors.filter(doctor => doctor.id !== parseInt(req.params.id));
+    const doctorId = parseInt(req.params.id);
+
+    // Check if the doctor has any schedules assigned
+    const schedules = await readJsonFile(SCHEDULES_FILE);
+    const doctorHasSchedules = schedules.some(schedule => schedule.doctorId === doctorId);
+
+    if (doctorHasSchedules) {
+      return res.status(400).json({ error: 'This doctor has schedules assigned and cannot be deleted.' });
+    }
+
+    const updatedDoctors = doctors.filter(doctor => doctor.id !== doctorId);
     if (doctors.length === updatedDoctors.length) {
       return res.status(404).json({ error: 'Doctor not found' });
     }
+
     await writeJsonFile(DOCTORS_FILE, updatedDoctors);
     res.json({ message: 'Doctor deleted successfully' });
     io.emit('doctorUpdate'); // Emit update event

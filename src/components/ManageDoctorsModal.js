@@ -37,12 +37,17 @@ const ManageDoctorsModal = ({ visible, onCancel, onAddDoctor, onUpdateDoctor, on
   const handleDelete = async (doctorId) => {
     try {
       await onDeleteDoctor(doctorId);
-      message.success(t('doctorDeletedSuccess'));
+      // Assuming onDeleteDoctor handles the server request and throws an error if deletion fails
     } catch (error) {
-      console.error('Error deleting doctor:', error);
-      message.error(t('doctorDeleteFailed'));
+      if (error.message === 'This doctor has schedules assigned and cannot be deleted.') {
+        message.warning('This doctor has schedules assigned and cannot be deleted.');
+      } else {
+        console.error('Error deleting doctor:', error);
+        message.error('Failed to delete doctor. Please try again.');
+      }
     }
   };
+  
 
   const handleAddDoctor = async () => {
     try {

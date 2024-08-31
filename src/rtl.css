@@ -14,3 +14,25 @@ body[dir="rtl"] .ant-menu {
     margin-right: 8px;
     margin-left: 0;
   }
+
+  .custom-scrollbar {
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #1890ff #f0f0f0; /* For Firefox */
+  }
+  
+  /* For Webkit browsers like Chrome, Safari */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 10px; /* Rounded corners for the track */
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #1890ff;
+    border-radius: 10px; /* Rounded corners for the thumb */
+    border: 2px solid #f0f0f0; /* Add space around thumb */
+  }
+  

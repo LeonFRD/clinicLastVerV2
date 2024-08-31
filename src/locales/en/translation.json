@@ -60,6 +60,24 @@
     "pleaseInputUsername": "Please input your username!",
     "pleaseInputPassword": "Please input your password!",
     "loginFailed": "Login failed. Please try again.",
-    "logout": "Logout"
+    "failedToAddDoctor": "Failed to add doctor",
+    "failedToAddDoctorTryAgain": "Failed to add doctor. Please try again.",
+    "failedToUpdateDoctor": "Failed to update doctor",
+    "failedToUpdateDoctorTryAgain": "Failed to update doctor. Please try again.",
+    "failedToDeleteDoctor": "Failed to delete doctor",
+    "failedToDeleteDoctorTryAgain": "Failed to delete doctor. Please try again.",
+    "doctorHasSchedulesWarning": "This doctor has schedules assigned and cannot be deleted.",
+    "scheduleAddedSuccess": "Schedule added successfully",
+    "failedToAddSchedule": "Failed to add schedule",
+    "failedToAddScheduleTryAgain": "Failed to add schedule. Please try again.",
+    "scheduleRemovedSuccess": "Schedule removed successfully",
+    "failedToRemoveSchedule": "Failed to remove schedule",
+    "failedToRemoveScheduleTryAgain": "Failed to remove schedule. Please try again.",
+    "scheduleUpdatedSuccess": "Schedule updated successfully",
+    "failedToUpdateSchedule": "Failed to update schedule",
+    "failedToUpdateScheduleTryAgain": "Failed to update schedule. Please try again.",
+    "languageChanged": "Language changed to {{lng}}",
+    "languageChangedEnglish": "Language changed to English",
+    "languageChangedHebrew": "Language changed to Hebrew"
 
   }
