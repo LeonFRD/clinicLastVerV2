@@ -36,58 +36,62 @@ const EditScheduleModal = ({ visible, onCancel, onEditSchedule, schedule, existi
   };
 
   const disabledTime = (current, type) => {
-    if (type === 'start') {
-      return {
-        disabledHours: () => getDisabledHours(current, 'start'),
-        disabledMinutes: (selectedHour) => getDisabledMinutes(current, selectedHour, 'start'),
-      };
-    }
     return {
-      disabledHours: () => getDisabledHours(current, 'end'),
-      disabledMinutes: (selectedHour) => getDisabledMinutes(current, selectedHour, 'end'),
+      disabledHours: () => [],
+      disabledMinutes: (selectedHour) => {
+        const minutes = [];
+        disabledTimes.forEach(({ start, end }) => {
+          if (type === 'start') {
+            if (selectedHour === start.hour() && selectedHour === end.hour()) {
+              for (let i = start.minute(); i < end.minute(); i++) {
+                minutes.push(i);
+              }
+            } else if (selectedHour === start.hour()) {
+              for (let i = start.minute(); i < 60; i++) {
+                minutes.push(i);
+              }
+            } else if (selectedHour > start.hour() && selectedHour < end.hour()) {
+              for (let i = 0; i < 60; i++) {
+                minutes.push(i);
+              }
+            }
+          } else if (type === 'end') {
+            if (selectedHour === start.hour() && selectedHour === end.hour()) {
+              for (let i = start.minute() + 1; i <= end.minute(); i++) {
+                minutes.push(i);
+              }
+            } else if (selectedHour === end.hour()) {
+              for (let i = 0; i <= end.minute(); i++) {
+                minutes.push(i);
+              }
+            } else if (selectedHour > start.hour() && selectedHour < end.hour()) {
+              for (let i = 0; i < 60; i++) {
+                minutes.push(i);
+              }
+            }
+          }
+        });
+        return minutes;
+      },
     };
-  };
-
-  const getDisabledHours = (current, type) => {
-    const hours = [];
-    disabledTimes.forEach(({ start, end }) => {
-      if (type === 'start') {
-        for (let i = start.hour(); i <= end.hour(); i++) {
-          if (!hours.includes(i)) hours.push(i);
-        }
-      } else {
-        for (let i = start.hour(); i < end.hour(); i++) {
-          if (!hours.includes(i)) hours.push(i);
-        }
-      }
-    });
-    return hours;
-  };
-
-  const getDisabledMinutes = (current, selectedHour, type) => {
-    const minutes = [];
-    disabledTimes.forEach(({ start, end }) => {
-      if (start.hour() === selectedHour) {
-        for (let i = start.minute(); i < 60; i++) {
-          if (!minutes.includes(i)) minutes.push(i);
-        }
-      } else if (end.hour() === selectedHour) {
-        for (let i = 0; i < end.minute(); i++) {
-          if (!minutes.includes(i)) minutes.push(i);
-        }
-      } else if (start.hour() < selectedHour && end.hour() > selectedHour) {
-        for (let i = 0; i < 60; i++) {
-          if (!minutes.includes(i)) minutes.push(i);
-        }
-      }
-    });
-    return minutes;
   };
 
   const handleOk = () => {
     form.validateFields().then((values) => {
       const newStartTime = values.timeRange[0].format('HH:mm');
       const newEndTime = values.timeRange[1].format('HH:mm');
+
+      // Check for conflicts
+      const hasConflict = disabledTimes.some(({ start, end }) => {
+        const newStart = dayjs(newStartTime, 'HH:mm');
+        const newEnd = dayjs(newEndTime, 'HH:mm');
+        return (newStart.isBefore(end) && newEnd.isAfter(start) && !newEnd.isSame(start) && !newStart.isSame(end));
+      });
+
+      if (hasConflict) {
+        message.error(t('timeConflictError'));
+        return;
+      }
 
       const updatedSchedule = {
         ...schedule,

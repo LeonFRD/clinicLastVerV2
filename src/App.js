@@ -15,10 +15,11 @@ import logo from './assets/logo.webp';
 import io from 'socket.io-client';
 import 'antd/dist/reset.css';
 import './App.css';
-
-
+import {LockOutlined, AppstoreOutlined, UserOutlined, HomeOutlined, PlusOutlined, ScheduleTwoTone, TeamOutlined } from '@ant-design/icons';
+import ReactCountryFlag from "react-country-flag";
 import heIL from 'antd/lib/locale/he_IL';
 import enUS from 'antd/lib/locale/en_US';
+
 
 const { Header, Content } = Layout;
 const { Option } = Select;
@@ -297,11 +298,15 @@ function AppContent() {
           defaultSelectedKeys={['1']} 
           style={{ flex: 1, minWidth: '300px' }}
         >
-          <Menu.Item key="1"><Link to="/">{t('management')}</Link></Menu.Item>
-          <Menu.Item key="2"><Link to="/patient">{t('patientView')}</Link></Menu.Item>
-          <Menu.SubMenu key="3" title={t('rooms')}>
+          <Menu.Item key="1" icon={<AppstoreOutlined />}>
+            <Link to="/">{t('management')}</Link>
+          </Menu.Item>
+          <Menu.Item key="2" icon={<UserOutlined />}>
+            <Link to="/patient">{t('patientView')}</Link>
+          </Menu.Item>
+          <Menu.SubMenu key="3" title={t('rooms')} icon={<HomeOutlined />}>
             {[...Array(17)].map((_, i) => (
-              <Menu.Item key={`room-${i + 1}`} onClick={() => handleRoomClick(i + 1)}>
+              <Menu.Item key={`room-${i + 1}`} onClick={() => handleRoomClick(i + 1)} icon={<HomeOutlined />}>
                 {t('room')} {i + 1}
               </Menu.Item>
             ))}
@@ -309,18 +314,34 @@ function AppContent() {
         </Menu>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Button type="primary" onClick={() => setIsScheduleModalVisible(true)} style={{ marginRight: '10px' }}>
-            {t('addSchedule')}
+            {t('addSchedules')}
           </Button>
           <Button type="primary" onClick={() => setIsDoctorsModalVisible(true)} style={{ marginRight: '10px' }}>
             {t('manageDoctors')}
           </Button>
-          <Select 
+          <Button type="primary" onClick={() => handleLogout()} style={{ marginRight: '10px' }}><LockOutlined />
+            {t('logout')}
+          </Button> <Select 
             value={language} 
-            style={{ width: 120 }} 
+            style={{ marginRight: '10px', width: 70 }} 
             onChange={handleLanguageChange}
           >
-            <Option value="en">English</Option>
-            <Option value="he">עברית</Option>
+            <Option value="en"><ReactCountryFlag svg className="emojiFlag"
+                countryCode="US"
+                style={{
+                    fontSize: '2em',
+                    lineHeight: '2em',
+                }}
+                aria-label="United States" />
+            </Option>
+            <Option value="he">
+              <ReactCountryFlag svg className="emojiFlag"
+                countryCode="IL"
+                style={{
+                    fontSize: '2em',
+                    lineHeight: '2em',
+                }}
+                aria-label="Israel" /></Option>
           </Select>
         </div>
       </div>
@@ -348,6 +369,7 @@ function AppContent() {
                       onUpdateSchedule={handleUpdateSchedule}
                       onAddSchedule={handleAddSchedule}  // Make sure this line is present
                     />
+                    
                   </Content>
                 </Layout>
               ) : (
@@ -384,7 +406,9 @@ function AppContent() {
         doctors={doctors}
         currentDay={getCurrentDayName()}
         />
+        
       </Router>
+      
     </ConfigProvider>
   );
 }

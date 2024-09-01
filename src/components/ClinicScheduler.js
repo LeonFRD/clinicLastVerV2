@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Card, Typography, message, Tooltip, Modal, Form, Input, TimePicker, Select } from 'antd';
+import { Card, Typography, message, Tooltip, Modal, Form, Input, TimePicker, Select, Timeline, Divider } from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import EditScheduleModal from './EditScheduleModal';
 import './ClinicScheduler.css';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 const { Option } = Select;
 
 const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedule, onAddSchedule }) => {
@@ -17,6 +17,8 @@ const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedul
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [selectedCell, setSelectedCell] = useState(null);
   const [form] = Form.useForm();
+  const [timelineItems, setTimelineItems] = useState([]);
+  const [conflictMessage, setConflictMessage] = useState('');
 
   const daysOfWeek = [
     { en: 'Sunday', he: 'יום ראשון' },
@@ -30,26 +32,37 @@ const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedul
 
   const orderedDays = isRTL ? daysOfWeek : [...daysOfWeek].reverse();
 
-  const checkConflict = (newSchedule, existingSchedules) => {
   const parseTime = (timeString) => {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 60 + minutes;
   };
 
-  const newStart = parseTime(newSchedule.startTime);
-  const newEnd = parseTime(newSchedule.endTime);
+  const sortSchedules = (schedules) => {
+    return [...schedules].sort((a, b) => parseTime(a.startTime) - parseTime(b.startTime));
+  };
 
-  return existingSchedules.some(schedule => {
-    // Ensure the comparison only happens on the same day
-    if (schedule.day !== newSchedule.day || schedule.id === newSchedule.id) return false;
-    
-    const existingStart = parseTime(schedule.startTime);
-    const existingEnd = parseTime(schedule.endTime);
-    
-    // Check for overlapping time ranges
-    return !(newEnd <= existingStart || newStart >= existingEnd);
-  });
-};
+  const checkConflict = (newSchedule, existingSchedules) => {
+    const newStart = parseTime(newSchedule.startTime);
+    const newEnd = parseTime(newSchedule.endTime);
+
+    return existingSchedules.some(schedule => {
+      if (schedule.day !== newSchedule.day || schedule.room !== newSchedule.room || schedule.id === newSchedule.id) return false;
+      
+      const existingStart = parseTime(schedule.startTime);
+      const existingEnd = parseTime(schedule.endTime);
+      
+      return !(newEnd <= existingStart || newStart >= existingEnd);
+    });
+  };
+
+  const generateTimelineItems = (day, room) => {
+    const relevantSchedules = schedules.filter(s => s.day === day && s.room === room);
+    const items = relevantSchedules.map(schedule => ({
+      children: `${schedule.startTime} - ${schedule.endTime}: ${doctors.find(d => d.id === schedule.doctorId)?.name || 'Unknown'}`,
+      color: 'blue',
+    }));
+    setTimelineItems(items);
+  };
 
 
   const onDragEnd = (result) => {
@@ -102,21 +115,17 @@ const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedul
   };
 
   const handleCellClick = (day, roomNumber) => {
-    console.log('Cell clicked:', day, roomNumber);
     setSelectedCell({ day, roomNumber });
     setAddModalVisible(true);
     form.setFieldsValue({
       day: day.en,
       room: `Room ${roomNumber}`,
     });
+    generateTimelineItems(day.en, `Room ${roomNumber}`);
   };
 
   const handleAddSchedule = (values) => {
-    console.log('Form values:', values);
-    console.log('Selected cell:', selectedCell);
-
     if (!values.timeRange || values.timeRange.length !== 2) {
-      console.error('Invalid time range:', values.timeRange);
       message.error(t('invalidTimeRange'));
       return;
     }
@@ -130,25 +139,26 @@ const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedul
       room: `Room ${selectedCell.roomNumber}`,
     };
 
-    console.log('New schedule object:', newSchedule);
-
-    if (checkConflict(newSchedule, schedules)) {
-      console.log('Schedule conflict detected');
-      message.error(t('scheduleConflictError'));
+    const conflict = checkConflict(newSchedule, schedules);
+    if (conflict) {
+      setConflictMessage(t('scheduleConflictError2'));
       return;
     }
 
-    console.log('Calling onAddSchedule with:', newSchedule);
     onAddSchedule(newSchedule);
     setAddModalVisible(false);
     form.resetFields();
+    setConflictMessage('');
   };
 
+
   const renderCell = (day, roomNumber) => {
-    const cellSchedules = schedules.filter(s => 
+    let cellSchedules = schedules.filter(s => 
         (s.day === day.en || s.day === day.he) && 
         (s.room === `Room ${roomNumber}` || s.room === `חדר ${roomNumber}`)
     );
+    
+    cellSchedules = sortSchedules(cellSchedules);
     
     const isEmpty = cellSchedules.length === 0;
 
@@ -322,39 +332,37 @@ const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedul
         schedule={editingSchedule}
         existingSchedules={schedules}
       />
-      <Modal
+       <Modal
         visible={addModalVisible}
         title={t('addSchedule')}
-        onCancel={() => setAddModalVisible(false)}
-        onOk={() => {
-          console.log('Modal OK clicked');
-          form.submit();
+        onCancel={() => {
+          setAddModalVisible(false);
+          setConflictMessage('');
         }}
+        onOk={() => form.submit()}
+        width={600} // Increased width to accommodate the timeline
       >
         <Form 
           form={form} 
-          onFinish={(values) => {
-            console.log('Form submitted with values:', values);
-            handleAddSchedule(values);
-          }} 
+          onFinish={handleAddSchedule} 
           layout="vertical"
         >
           <Form.Item name="doctorId" label={t('selectDoctor')} rules={[{ required: true }]}>
-          <Select
-            showSearch
-            filterOption={(input, option) => 
-              option.children.toLowerCase().includes(input.toLowerCase())
-            }
-          >
+            <Select
+              showSearch
+              filterOption={(input, option) => 
+                option.children.toLowerCase().includes(input.toLowerCase())
+              }
+            >
               {doctors.map(doctor => (
                 <Option key={doctor.id} value={doctor.id}>
-                {`${doctor.name} - ${doctor.speciality}`}
-              </Option>
+                  {`${doctor.name} - ${doctor.speciality}`}
+                </Option>
               ))}
             </Select>
           </Form.Item>
           <Form.Item name="timeRange" label={t('timeRange')} rules={[{ required: true }]}>
-            <TimePicker.RangePicker format="HH:mm" placeholder={[t('startTime'), t('endTime')]}/>
+            <TimePicker.RangePicker format="HH:mm" placeholder={[t('startTime'), t('endTime')]} />
           </Form.Item>
           <Form.Item name="day" label={t('day')} hidden>
             <Input />
@@ -363,7 +371,22 @@ const ClinicScheduler = ({ schedules, doctors, onRemoveSchedule, onUpdateSchedul
             <Input />
           </Form.Item>
         </Form>
+        {conflictMessage && <Text type="danger">{conflictMessage}</Text>}
+        <Divider />
+        <Title level={4}>{t('takenHours')}</Title>
+        {timelineItems.length > 0 ? (
+          <Timeline items={timelineItems} />
+        ) : (
+          <Text type="secondary">{t('noSchedulesForThisRoom')}</Text>
+        )}
       </Modal>
+      <EditScheduleModal
+        visible={editModalVisible}
+        onCancel={handleEditModalClose}
+        onEditSchedule={handleEditSchedule}
+        schedule={editingSchedule}
+        existingSchedules={schedules}
+      />
     </DragDropContext>
   );
 };

@@ -2,16 +2,31 @@
   {
     "id": 1725054389132,
     "name": "לאון",
-    "speciality": "הגבר"
+    "speciality": "פרדי"
   },
   {
     "id": 1725130502561,
     "name": "סלב ",
-    "speciality": "סלב"
+    "speciality": "פרדי"
   },
   {
     "id": 1725130592608,
     "name": "ששששש",
     "speciality": "ששששש"
+  },
+  {
+    "id": 1725219150828,
+    "name": "דר' שמעון doctor",
+    "speciality": "רופא עור "
+  },
+  {
+    "id": 1725220542689,
+    "name": "אנה",
+    "speciality": "המלכה"
+  },
+  {
+    "id": 1725220620366,
+    "name": "VLRP נםא",
+    "speciality": "כ"
   }
 ]

@@ -3,6 +3,7 @@
     "patientView": "תצוגת מטופל",
     "rooms": "חדרים",
     "room": "חדר",
+    "addSchedules": "הוסף לוח זמנים",
     "addSchedule": "הוסף לוח זמנים",
     "manageDoctors": "נהל רופאים",
     "doctor": "רופא",
@@ -58,6 +59,7 @@
     "save": "שמור",
     "pleaseSelectTimeRange": "אנא בחר טווח זמן",
     "scheduleConflictError": "לא ניתן להזיז את לוח הזמנים עקב התנגשות בזמן.",
+    "scheduleConflictError2": "לא ניתן לקבוע את לוח הזמנים עקב התנגשות בזמן.",
     "login": "התחברות",
     "username": "שם משתמש",
     "password": "סיסמה",
@@ -85,7 +87,9 @@
     "languageChanged": "השפה השתנתה ל{{lng}}",
     "languageChangedEnglish": "השפה השתנתה לאנגלית",
     "languageChangedHebrew": "השפה השתנתה לעברית",
-    "scheduledTimes": "זמנים תפוסים"
+    "scheduledTimes": "זמנים תפוסים",
+    "takenHours": "זמנים תפוסים",
+    "noSchedulesForThisRoom": "אין זימונים "
 
 
   }

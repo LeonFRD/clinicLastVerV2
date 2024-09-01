@@ -5,6 +5,7 @@ import { ClockCircleOutlined, MedicineBoxOutlined, UserOutlined } from '@ant-des
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../contexts/LanguageContext';
 import io from 'socket.io-client';
+import logo2 from '../assets/logoDark.webp';
 
 // Import Ant Design locales
 import heIL from 'antd/lib/locale/he_IL';
@@ -72,6 +73,7 @@ const RoomView = () => {
 
   const currentDaySchedules = getCurrentDaySchedules();
 
+  
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -93,9 +95,14 @@ const RoomView = () => {
               justifyContent: 'center',
               alignItems: 'center'
             }}>
-              <Avatar size={80} style={{ backgroundColor: '#ffffff', color: '#1890ff' }}>
-                {isRTL ? 'ח' : 'R'}{roomNumber}
-              </Avatar>
+              <Avatar 
+                size={80} 
+                src={logo2}
+                style={{
+                  background: '#ffffff',
+                  padding: '2px',  // Add a small padding to create a border effect
+                }}
+              />
             </div>
           }
         >
