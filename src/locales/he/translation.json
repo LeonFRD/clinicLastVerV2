@@ -84,7 +84,8 @@
     "failedToUpdateScheduleTryAgain": "נכשל לעדכן את לוח הזמנים. אנא נסה שוב.",
     "languageChanged": "השפה השתנתה ל{{lng}}",
     "languageChangedEnglish": "השפה השתנתה לאנגלית",
-    "languageChangedHebrew": "השפה השתנתה לעברית"
+    "languageChangedHebrew": "השפה השתנתה לעברית",
+    "scheduledTimes": "זמנים תפוסים"
 
 
   }

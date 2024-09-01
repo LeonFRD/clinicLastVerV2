@@ -1,18 +1,18 @@
 [
   {
-    "doctorId": 1725054389132,
-    "room": "Room 1",
+    "doctorId": 1725130592608,
     "startTime": "01:00",
     "endTime": "02:00",
-    "day": "Thursday",
-    "id": 1725054421527
+    "day": "Sunday",
+    "room": "Room 1",
+    "id": 1725132554361
   },
   {
-    "doctorId": 1725054389132,
-    "room": "Room 2",
-    "startTime": "01:00",
-    "endTime": "02:00",
-    "day": "Monday",
-    "id": 1725054824965
+    "doctorId": 1725130502561,
+    "startTime": "03:00",
+    "endTime": "04:00",
+    "day": "Saturday",
+    "room": "Room 1",
+    "id": 1725132581746
   }
 ]

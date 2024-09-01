@@ -1,25 +1,64 @@
-import React from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { Modal, Card, Typography, List, Avatar, Tag, Button, ConfigProvider } from 'antd';
 import { ClockCircleOutlined, MedicineBoxOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../contexts/LanguageContext';
 
-// Import Ant Design locales
 import heIL from 'antd/lib/locale/he_IL';
 import enUS from 'antd/lib/locale/en_US';
 
 const { Title, Text } = Typography;
 
-const RoomPreviewModal = ({ visible, onCancel, roomNumber, schedules, doctors, currentDay }) => {
+const RoomPreviewModal = ({ visible, onCancel, roomNumber, schedules = [], doctors = [], currentDay = '' }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { language } = useLanguage();
   const isRTL = language === 'he';
 
-  const currentRoomSchedules = schedules.filter(
-    schedule => schedule.day === currentDay && (schedule.room === `Room ${roomNumber}` || schedule.room === `חדר ${roomNumber}`)
-  );
+  const translateDay = (day) => {
+    if (!day) return '';
+    const translations = {
+      'sunday': 'יום ראשון',
+      'monday': 'יום שני',
+      'tuesday': 'יום שלישי',
+      'wednesday': 'יום רביעי',
+      'thursday': 'יום חמישי',
+      'friday': 'יום שישי',
+      'saturday': 'יום שבת',
+    };
+    return translations[day.toLowerCase()] || day;
+  };
+
+  useEffect(() => {
+    console.log('RoomPreviewModal props:', { visible, roomNumber, currentDay });
+    console.log('Schedules received:', schedules);
+    console.log('Doctors received:', doctors);
+  }, [visible, roomNumber, currentDay, schedules, doctors]);
+
+  const filteredSchedules = useMemo(() => {
+    console.log('Filtering schedules for room', roomNumber, 'and day', currentDay);
+    return schedules.filter(schedule => {
+      if (!schedule || typeof schedule !== 'object') {
+        console.log('Invalid schedule:', schedule);
+        return false;
+      }
+      console.log('Checking schedule:', schedule);
+      const roomMatch = (schedule.room || '').includes(`${roomNumber}`);
+      const scheduleDay = (schedule.day || '').toLowerCase();
+      const currentDayLower = (currentDay || '').toLowerCase();
+      const dayMatch = 
+        scheduleDay === currentDayLower ||
+        translateDay(scheduleDay) === currentDayLower ||
+        scheduleDay === translateDay(currentDayLower);
+      console.log('Room match:', roomMatch, 'Day match:', dayMatch);
+      return roomMatch && dayMatch;
+    });
+  }, [schedules, roomNumber, currentDay]);
+
+  useEffect(() => {
+    console.log('Filtered schedules:', filteredSchedules);
+  }, [filteredSchedules]);
 
   const handleEnterRoom = () => {
     navigate(`/room/${roomNumber}`);
@@ -55,14 +94,15 @@ const RoomPreviewModal = ({ visible, onCancel, roomNumber, schedules, doctors, c
             {t('roomNumber', { number: roomNumber })}
           </Title>
           <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginBottom: '10px' }}>
-            {t('previewForDay', { day: t(currentDay.toLowerCase()) })}
+            {t('previewForDay', { day: currentDay })}
           </Text>
           <List
             itemLayout="horizontal"
-            dataSource={currentRoomSchedules}
-            // In the renderItem function of the List component
+            dataSource={filteredSchedules}
             renderItem={schedule => {
+              console.log('Rendering schedule:', schedule);
               const doctor = doctors.find(d => d.id === schedule.doctorId);
+              console.log('Doctor found:', doctor);
               return (
                 <List.Item>
                   <List.Item.Meta
@@ -79,7 +119,9 @@ const RoomPreviewModal = ({ visible, onCancel, roomNumber, schedules, doctors, c
                     description={
                       <Text>
                         <ClockCircleOutlined style={{ marginRight: isRTL ? '0' : '8px', marginLeft: isRTL ? '8px' : '0' }} />
-                        {`${schedule.startTime} - ${schedule.endTime}`}
+                        {schedule.startTime && schedule.endTime 
+                          ? `${schedule.startTime} - ${schedule.endTime}`
+                          : t('timeNotAvailable')}
                       </Text>
                     }
                   />
@@ -87,7 +129,7 @@ const RoomPreviewModal = ({ visible, onCancel, roomNumber, schedules, doctors, c
               );
             }}
           />
-          {currentRoomSchedules.length === 0 && (
+          {filteredSchedules.length === 0 && (
             <Text style={{ display: 'block', textAlign: 'center', margin: '10px 0' }}>
               {t('noSchedulesForRoom')}
             </Text>

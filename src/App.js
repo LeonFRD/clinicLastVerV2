@@ -51,6 +51,7 @@ function AppContent() {
     }
 
     socket.on('scheduleUpdate', () => {
+      console.log('Socket: scheduleUpdate event received');
       fetchSchedules(username, password);
     });
 
@@ -79,6 +80,7 @@ function AppContent() {
   };
 
   const fetchSchedules = async (username, password) => {
+    console.log('Fetching schedules...');
     try {
       const response = await fetch('/api/schedules', {
         headers: {
@@ -90,6 +92,7 @@ function AppContent() {
         throw new Error(t('failedToFetchSchedules'));
       }
       const data = await response.json();
+      console.log('Fetched schedules:', data);
       setSchedules(data);
     } catch (error) {
       console.error('Error fetching schedules:', error);
@@ -168,23 +171,29 @@ function AppContent() {
   };
 
   const handleAddSchedule = async (newSchedule) => {
+    console.log('handleAddSchedule called with:', newSchedule);
     try {
       const response = await fetch('/api/schedules', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'username': username,
+          'password': password,
         },
         body: JSON.stringify(newSchedule),
       });
 
+      console.log('API response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('API error response:', errorData);
         throw new Error(errorData.error || t('failedToAddSchedule'));
       }
 
       const addedSchedule = await response.json();
+      console.log('Added schedule:', addedSchedule);
       setSchedules(prevSchedules => [...prevSchedules, addedSchedule]);
-      setIsScheduleModalVisible(false);
       message.success(t('scheduleAddedSuccess'));
     } catch (error) {
       console.error('Error adding schedule:', error);
@@ -238,13 +247,18 @@ function AppContent() {
   };
 
   const handleRoomClick = (roomNumber) => {
+    console.log('Room clicked:', roomNumber);
+    console.log('Current schedules:', schedules);
+    console.log('Current doctors:', doctors);
     setSelectedRoom(roomNumber);
     setIsRoomPreviewVisible(true);
   };
 
   const getCurrentDayName = () => {
     const days = [t('sunday'), t('monday'), t('tuesday'), t('wednesday'), t('thursday'), t('friday'), t('saturday')];
-    return days[new Date().getDay()];
+    const currentDay = days[new Date().getDay()];
+    console.log('Current day:', currentDay);
+    return currentDay;
   };
 
   const handleLanguageChange = (lng) => {
@@ -332,6 +346,7 @@ function AppContent() {
                       doctors={doctors} 
                       onRemoveSchedule={handleRemoveSchedule}
                       onUpdateSchedule={handleUpdateSchedule}
+                      onAddSchedule={handleAddSchedule}  // Make sure this line is present
                     />
                   </Content>
                 </Layout>
@@ -359,12 +374,15 @@ function AppContent() {
           doctors={doctors}
         />
         <RoomPreviewModal
-          visible={isRoomPreviewVisible}
-          onCancel={() => setIsRoomPreviewVisible(false)}
-          roomNumber={selectedRoom}
-          schedules={schedules}
-          doctors={doctors}
-          currentDay={getCurrentDayName()}
+        visible={isRoomPreviewVisible}
+        onCancel={() => {
+          console.log('Closing RoomPreviewModal');
+          setIsRoomPreviewVisible(false);
+        }}
+        roomNumber={selectedRoom}
+        schedules={schedules}
+        doctors={doctors}
+        currentDay={getCurrentDayName()}
         />
       </Router>
     </ConfigProvider>

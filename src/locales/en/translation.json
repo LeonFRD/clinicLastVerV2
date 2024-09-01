@@ -78,6 +78,7 @@
     "failedToUpdateScheduleTryAgain": "Failed to update schedule. Please try again.",
     "languageChanged": "Language changed to {{lng}}",
     "languageChangedEnglish": "Language changed to English",
-    "languageChangedHebrew": "Language changed to Hebrew"
+    "languageChangedHebrew": "Language changed to Hebrew",
+    "scheduledTimes": "Busy times"
 
   }
